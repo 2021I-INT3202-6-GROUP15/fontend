@@ -1,0 +1,8 @@
+.register{
+    display: flex;
+    justify-content: center;
+}
+.register>Form{
+    padding: 40px;
+    width: 700px;
+}

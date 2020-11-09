@@ -1,0 +1,12 @@
+.menu{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+}
+.menu>Link{
+    padding-top: 10px;
+}
+.menu>div{
+    padding-top: 10px;
+}

@@ -1,4 +1,4 @@
-import { Menu, Card, Form, Input } from 'antd';
+import { Menu, Card, Form, Input, Button } from 'antd';
 import {
     BrowserRouter as Router,
     Link,
@@ -16,31 +16,43 @@ import Slogan from './Slogan';
 const { SubMenu } = Menu;
 
 const DOCUMENT_FILTER_BY_LANGUAGE = gql`
-      query document_filter_by_language($language:String!){
-        documentFilter(language:$language){
-          documentUuid
-          title
-          description
-        }
-      }`
+query document_filter_by_language($language: String!) {
+    filterDocumentByLanguage(language: $language) {
+      hasNext
+      documents {
+        documentUuid
+        title
+        description
+        coverUrl
+      }
+    }
+  }`
 
 const DOCUMENT_FILTER_BY_CATEGORY = gql`
-      query document_filter_by_category($category:String!){
-        documentFilter(category:$category){
-          documentUuid
-          title
-          description
-        }
-      }`
+query document_filter_by_category($category: String!) {
+    documentFilter(category: $category) {
+      hasNext
+      documents {
+        documentUuid
+        title
+        description
+        coverUrl
+      }
+    }
+  }`
 
 const DOCUMENT_FILTER_BY_TITLE = gql`
-      query document_filter_by_title($title:String!){
-        documentFilter(title:$title){
+query document_filter_by_title($title:String!){
+    searchByDocumentTitle(title:$title){
+        hasNext
+        documents {
           documentUuid
           title
           description
+          coverUrl
         }
-      }`
+      }
+  }`
 
 
 class LeftMenu extends React.Component {
@@ -51,20 +63,21 @@ class LeftMenu extends React.Component {
             category: "",
             choice: 0,
             posts: [],
-            title: ""
+            title: "",
+            linkPass: ""
         };
-        this.changeHandler=this.changeHandler.bind(this)
+        this.changeHandler = this.changeHandler.bind(this)
     }
 
     changeHandler = (e) => {
-        this.setState({ title: e.target.value, choice:1 })
+        this.setState({ title: e.target.value, choice: 1 })
     }
 
     search = (
         <div style={{ display: "flex", justifyContent: "center" }}>
             <Form>
                 <Form.Item name="title" >
-                    <Input name='title' placeholder="Search by title" style={{ width: "600px", borderRadius: "20px", border: "solid 1px silver" }}onChange={this.changeHandler} suffix={<SearchOutlined onClick={(e) => { this.setState({choice: 1 }) }}/>} />
+                    <Input name='title' allowClear placeholder="Search by title" style={{ width: "600px", borderRadius: "20px", border: "solid 1px silver", height: "35px" }} onChange={this.changeHandler} suffix={<SearchOutlined onClick={(e) => { this.setState({ choice: 1 }) }} />} />
                 </Form.Item>
             </Form>
         </div>
@@ -76,7 +89,7 @@ class LeftMenu extends React.Component {
             defaultOpenKeys={['sub1', 'sub2']}
             mode="inline"
             theme="dark"
-            style={{ width: "200px" }}
+            style={{ height: "3500px", flex: "3", border:"1px solid aqua"}}
         >
             <Menu.Item icon={<AppstoreOutlined />}>
                 <Link to='/Authors'>Authors</Link>
@@ -108,19 +121,29 @@ class LeftMenu extends React.Component {
         return (
             <Query query={DOCUMENT_FILTER_BY_LANGUAGE} variables={{ language: lang }}>
                 {({ loading, error, data }) => {
-                    if (loading) return "Loading"
+                    if (loading) return (
+                        <div style={{ width: "80%%", margin: "20px 70px", display: "flex", justifyContent: "center" }}>
+                            <Button type="primary" loading style={{ width: "120px", height: "50px" }}>
+                                Loading
+                            </Button>
+                        </div>
+                    )
                     if (error) return `Error! ${error.message}`
                     return (
-                        <div style={{ width: "1000px", margin: "20px 70px" }}>
-                            <Card title="Document" style={{ border: "1px solid silver", borderRadius: "10px" }}>
+                        <div style={{ width: "80%%", margin: "20px 70px" }}>
+                            <Card title="Document" style={{ border: "2px solid silver", borderRadius: "10px", textAlign: "center" }}>
                                 {
-                                    data.documentFilter.map((doc) => {
-                                        console.log(doc)
+                                    data.filterDocumentByLanguage.documents.map((doc) => {
                                         return (
                                             <Link to={`/${doc.documentUuid}`}>
-                                                <Card style={{ marginTop: 16, border: "1px solid silver" }} type="inner" title={doc.title} extra={<a href="#">More</a>}>
-                                                    this is a good book
-                                                    </Card>
+                                                <Card style={{ marginTop: 16, border: "1px solid silver", textAlign: "left" }}
+                                                    type="inner" title={doc.title}
+                                                    hoverable={true} extra={<a href="#">More</a>}
+                                                    onClick={(e) => { this.props.pass(doc.documentUuid) }}
+                                                    // cover={<img alt="example" src={doc.coverUrl} />}
+                                                    >
+                                                    {doc.description}
+                                                </Card>
                                             </Link>)
                                     }
                                     )
@@ -133,23 +156,34 @@ class LeftMenu extends React.Component {
         )
     }
 
-    title(title){
+    title(title) {
         console.log("title")
         return (
-            <Query query={DOCUMENT_FILTER_BY_TITLE} variables={{ title:title }}>
+            <Query query={DOCUMENT_FILTER_BY_TITLE} variables={{ title: title }}>
                 {({ loading, error, data }) => {
-                    if (loading) return "Loading"
+                    if (loading) return (
+                        <div style={{ width: "80%%", margin: "20px 70px", display: "flex", justifyContent: "center" }}>
+                            <Button type="primary" loading style={{ width: "120px", height: "50px" }}>
+                                Loading
+                            </Button>
+                        </div>
+                    )
                     if (error) return `Error! ${error.message}`
                     return (
-                        <div style={{ width: "1000px", margin: "20px 70px" }}>
-                            <Card title="Document" style={{ border: "1px solid silver", borderRadius: "10px" }}>
+                        <div style={{ width: "80%%", margin: "20px 70px" }}>
+                            <Card title="Document" style={{ border: "2px solid silver", borderRadius: "10px", textAlign: "center" }}>
                                 {
-                                    data.documentFilter.map((doc) => {
-                                        console.log(doc)
+                                    data.searchByDocumentTitle.documents.map((doc) => {
                                         return (
                                             <Link to={`/${doc.documentUuid}`}>
-                                                <Card style={{ marginTop: 16, border: "1px solid silver" }} type="inner" title={doc.title} extra={<a href="#">More</a>}>
-                                                    this is a good book
+                                                <Card style={{ marginTop: 16, border: "1px solid silver", textAlign: "left" }}
+                                                    hoverable={true} type="inner"
+                                                    title={doc.title}
+                                                    onClick={(e) => { this.props.pass(doc.documentUuid) }}
+                                                    extra={<a href="#">More</a>}
+                                                    // cover={<img alt="example" src={doc.coverUrl} />}
+                                                    >
+                                                    {doc.description}
                                                 </Card>
                                             </Link>)
                                     }
@@ -169,18 +203,29 @@ class LeftMenu extends React.Component {
         return (
             <Query query={DOCUMENT_FILTER_BY_CATEGORY} variables={{ category: cate }}>
                 {({ loading, error, data }) => {
-                    if (loading) return "Loading"
+                    if (loading) return (
+                        <div style={{ width: "80%%", margin: "20px 70px", display: "flex", justifyContent: "center" }}>
+                            <Button type="primary" loading style={{ width: "120px", height: "50px" }}>
+                                Loading
+                            </Button>
+                        </div>
+                    )
                     if (error) return `Error! ${error.message}`
                     return (
-                        <div style={{ width: "1000px", margin: "20px 70px" }}>
-                            <Card title="Document" style={{ border: "1px solid silver", borderRadius: "10px" }}>
+                        <div style={{ width: "80%", margin: "20px 70px" }}>
+                            <Card title="Document" style={{ border: "2px solid silver", borderRadius: "10px", textAlign: "center" }}>
                                 {
-                                    data.documentFilter.map((doc) => {
-                                        console.log(doc)
+                                    data.documentFilter.documents.map((doc) => {
                                         return (
                                             <Link to={`/${doc.documentUuid}`}>
-                                                <Card style={{ marginTop: 16, border: "1px solid silver" }} type="inner" title={doc.title} extra={<a href="#">More</a>}>
-                                                    this is a good book
+                                                <Card style={{ marginTop: 16, border: "1px solid silver", textAlign: "left" }}
+                                                    hoverable={true} type="inner"
+                                                    title={doc.title}
+                                                    onClick={(e) => { this.props.pass(doc.documentUuid) }}
+                                                    extra={<a href="#">More</a>}
+                                                    // cover={<img alt="example" src={doc.coverUrl} />}
+                                                    >
+                                                    {doc.description}
                                                 </Card>
                                             </Link>)
                                     }
@@ -196,23 +241,25 @@ class LeftMenu extends React.Component {
 
     render() {
         let body = (<div></div>)
-        if (this.state.choice==0) {
+        if (this.state.choice == 0) {
             body = this.cate(this.state.category)
 
         }
-        else if(this.state.choice==2){
+        else if (this.state.choice == 2) {
             body = this.lang(this.state.language)
         }
-        else{
-            body=this.title(this.state.title)
+        else {
+            body = this.title(this.state.title)
         }
         return (
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between',height:"100%", flex: "18", border:"1px solid blue" }}>
                 {this.menu}
-                <div>
+                <div style={{ flex: "15", display: "flex", flexDirection: "column", alignItems: "center", border: "1px solid silver", height:"100%" }}>
                     <Slogan />
                     {this.search}
-                    {body}
+                    <div style={{ width: "100%" }}>
+                        {body}
+                    </div>
                 </div>
 
             </div>

@@ -7,6 +7,7 @@ import Slogan from '../small_components/Slogan'
 
 import { gql } from 'apollo-boost'
 import { Query } from 'react-apollo'
+import SearchTitle from '../small_components/Search'
 
 const PROFILE = gql`
       query profile($username:String!){
@@ -21,34 +22,47 @@ class HomeLogin extends React.Component {
         super(props)
         this.state = {
             isLogOut: false,
-            category: '',
-            language: ''
+            category: "book",
+            language: '', 
+            title:"",
+            by:"category",
+            linkpass:""
         }
+    } 
+    // selectTitle=(title)=>{
+    //     this.setState({title:title, by:"title"})
+    // }
+    // selectCategory=(category)=>{
+    //     this.setState({category:category, by:"category"})
+    // }
+
+    // selectLanguage=(language)=>{
+    //     this.setState({language:language, by:"language"})
+    // }
+
+    passLink =(passLink)=>{
+        this.setState({linkpass:passLink})
+        this.props.documentLink(passLink)
     }
 
     render() {
+        console.log("home")
         if (localStorage.getItem("auth") == null ||this.props.username=="") {
-            console.log("not")
             return (
-                <div >
+                <div style={{height:"100%"}}>
                     <AppHeaderLogin username=""/>
-                    <div style={{ display: 'flex', justifyContent: 'space-between'}} >
-                        <LeftMenu/>
-                        {/* <div style={{ marginRight: '100px' }}>
-                            <Slogan />
-                            <DocumentList/>
-                        </div> */}
-                        {/* <RightMenu /> */}
+                    <div style={{height:"100%"}}>
+                        <LeftMenu  pass={this.passLink} />
                     </div>
 
                 </div>
             )
         }
         return (
-            <div>
+            <div style={{height:"100%"}}>
                 <AppHeaderLogin username={this.props.username} />
-                <div style={{ display: 'flex', justifyContent: 'space-between'}}>
-                    <LeftMenu/>
+                <div style={{ display: 'flex', justifyContent: 'space-between', height:"100%"}}>
+                    <LeftMenu pass={this.passLink}/>
                     {/* <div >
                         <Slogan />
                         <DocumentList/>

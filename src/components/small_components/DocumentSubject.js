@@ -9,29 +9,31 @@ import {
 import { gql } from 'apollo-boost'
 import { Query } from 'react-apollo'
 
-const AUTHOR_BY_ID = gql`
-      query author_by_id($uuid:UUID!){
-        authorByUuid(uuid:$uuid){
+const SUBJECT_BY_ID = gql`
+      query subject_by_id($uuid:UUID!){
+        labelByUuid(uuid:$uuid){
           name
+          description
         }
       }`
 
-const DOCUMENTS_OF_AUTHOR = gql`
-      query author_get_documents($authorUuid:UUID!){
-        authorGetDocuments(authorUuid:$authorUuid){
+const DOCUMENTS_OF_SUBJECT = gql`
+      query subject_get_documents($labelUuid:UUID!){
+        labelGetDocuments(labelUuid:$labelUuid){
           documentUuid
           title
+          description
         }
       }`
 
-class DocumentAuthor extends React.Component {
+class DocumentSubject extends React.Component {
     constructor(props) {
         super(props)
     }
 
-    author_infor(uuid) {
+    subject_infor(uuid) {
         return (
-            <Query query={AUTHOR_BY_ID} variables={{ uuid: uuid }}>
+            <Query query={SUBJECT_BY_ID} variables={{ uuid: uuid }}>
                 {({ loading, error, data }) => {
                     if (loading) return (
                         <div style={{ width: "1000px", margin: "20px 70px", display:"flex", justifyContent:"center" }}>
@@ -44,7 +46,7 @@ class DocumentAuthor extends React.Component {
                     return (
                         <div style={{ display: "flex", justifyContent: "center" }}>
                             <div style={{ width: "1000px", margin: "20px 70px" }}>
-                                <Card title={data.authorByUuid.name} style={{ textAlign: "center", border:"2px solid silver" }}></Card>
+                                <Card title={data.labelByUuid.name} style={{ textAlign: "center", border: "1px solid silver" }}></Card>
                             </div>
                         </div>
 
@@ -53,9 +55,9 @@ class DocumentAuthor extends React.Component {
             </Query>
         )
     }
-    author_document(uuid) {
+    subject_document(uuid) {
         return (
-            <Query query={DOCUMENTS_OF_AUTHOR} variables={{ authorUuid: uuid }}>
+            <Query query={DOCUMENTS_OF_SUBJECT} variables={{labelUuid: uuid }}>
                 {({ loading, error, data }) => {
                     if (loading) return (
                         <div style={{ width: "1000px", margin: "20px 70px", display:"flex", justifyContent:"center" }}>
@@ -68,18 +70,19 @@ class DocumentAuthor extends React.Component {
                     return (
                         <div style={{display:"flex", justifyContent:"center"}}>
                             <div style={{ width: "1000px", margin: "20px 70px" }}>
-                                <Card title="Document" style={{ border: "2px solid silver", borderRadius: "10px", textAlign:"center" }}>
+                                <Card title="Document" style={{ border: "2px solid silver", borderRadius: "10px" }}>
                                     {
-                                        data.authorGetDocuments.map((doc) => {
+                                        data.labelGetDocuments.map((doc) => {
                                             console.log(doc)
                                             return (
                                                 <Link to={`/${doc.documentUuid}`}>
-                                                    <Card style={{ marginTop: 16, border: "1px solid silver", textAlign:"left" }} 
-                                                    hoverable={true} type="inner" 
-                                                    title={doc.title} 
+                                                    <Card style={{ marginTop: 16, border: "1px solid silver" }} 
+                                                    type="inner" 
+                                                    hoverable={true} 
+                                                    title={doc.title}
                                                     onClick={(e)=>{this.props.pass(doc.documentUuid)}}
                                                     extra={<a href="#">More</a>}>
-                                                        {/* {doc.description} */}
+                                                        {doc.description}
                                                     </Card>
                                                 </Link>)
                                         }
@@ -95,14 +98,15 @@ class DocumentAuthor extends React.Component {
     }
 
     render() {
+        console.log(this.props.uuid)
         return (
             <div>
                 <AppHeaderLogin username={this.props.username} />
                 <Slogan />
-                {this.author_infor(this.props.uuid)}
-                {/* {this.author_document(this.props.uuid)} */}
+                {this.subject_infor(this.props.uuid)}
+                {this.subject_document(this.props.uuid)}
             </div>
         )
     }
 }
-export default DocumentAuthor
+export default DocumentSubject

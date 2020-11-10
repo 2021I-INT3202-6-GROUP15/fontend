@@ -17,7 +17,6 @@ import {
 const BOOKMARK_GET = gql`
       query bookmark_get{
         bookmarkGet{
-          documentUuid
           title
         }
       }`
@@ -42,6 +41,15 @@ class Bookmark extends React.Component {
                             <div style={{ width: "1000px", margin: "20px 70px" }}>
                                 <Card title="Bookmark" style={{ border: "1px solid silver", borderRadius: "10px" }}>
                                     Bookmark is empty
+                                </Card>
+                            </div>
+                        )
+                    }
+                    if(data.bookmarkGet.length ==0){
+                        return(
+                            <div style={{ width: "1000px", margin: "20px 70px" }}>
+                                <Card title="Bookmark" style={{ border: "1px solid silver", borderRadius: "10px" }}>
+                                    Bookmark list is empty
                                 </Card>
                             </div>
                         )

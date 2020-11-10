@@ -3,18 +3,39 @@ import {
     HeartOutlined, HeartFilled
 } from '@ant-design/icons';
 import { gql } from 'apollo-boost'
-import { Query } from 'react-apollo'
+import { Form, Input, Button, Radio, Select, InputNumber, message } from 'antd';
+import { Query, Mutation } from 'react-apollo'
 
 const BOOKMARK_CHECK = gql`
       query bookmark_check($documentUuid:UUID!){
         bookmarkCheck(documentUuid:$documentUuid)
       }`
 
+const BOOKMARK_ADD = gql`
+      mutation bookmarkAdd($documentUuid:UUID!){
+          bookmarkAdd(
+              documentUuid:$documentUuid
+          ){
+              ok
+          }
+      }
+      `
+const BOOKMARK_DELETE = gql`
+      mutation bookmarkDelete($documentUuid:UUID!){
+          bookmarkDelete(
+              documentUuid:$documentUuid
+          ){
+              ok
+          }
+      }
+      `
+
 class BookmarkComponent extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            bookmark: false
+            bookmark: 0,
+            begin: false,
         }
     }
 
@@ -22,35 +43,54 @@ class BookmarkComponent extends React.Component {
         this.setState({ bookmark: true })
     }
 
-
     render() {
-        // if (!this.state.bookmark) {
-        //     return (
-        //         <HeartOutlined style={{ color: "red", fontSize: "30px", paddingRight: "30px" }} onClick={this.clickHandler} />
-        //     )
-        // }
-        // return (
-        //     <HeartFilled style={{ color: "red", fontSize: "30px", paddingRight: "30px" }} onClick={this.clickHandler} />
-        // )
-        return (
-            <Query query={BOOKMARK_CHECK} variables={{ documentUuid: this.props.uuid }}>
+        if (this.props.username == "") {
+            return (<div></div>)
+        }
+        return(
+            <Query asyncMode query={BOOKMARK_CHECK} variables={{ documentUuid: this.props.uuid }}>
                 {({ loading, error, data }) => {
                     if (loading) return "Loading"
-                    if (error) return `Error! ${error.message}`
-                    console.log(data)
-                    if (data) {
+                    if (!data.bookmarkCheck) {
                         return (
-                            <HeartFilled style={{ color: "red", fontSize: "30px" }} />
+                            // <HeartOutlined style={{ color: "red", fontSize: "30px", paddingRight: "30px" }}/>
+                            <Mutation mutation={BOOKMARK_ADD}>
+                                {(bookmarkAdd, { data }) => (
+                                    <HeartOutlined
+                                        style={{ color: "red", fontSize: "30px", paddingRight: "30px" }}
+                                        onClick=
+                                        {
+                                            (e) => {
+                                                console.log('add')
+                                                bookmarkAdd({ variables: { documentUuid: this.props.uuid } })
+                                                this.setState({ bookmark: 1 })
+                                            }
+                                        } />
+                                )}
+                            </Mutation>
                         )
                     }
-                    return (
-                        <HeartOutlined style={{ color: "red", fontSize: "30px" }} />
-                    )
+                    if (data.bookmarkCheck) {
+                        return (
+                            <Mutation mutation={BOOKMARK_DELETE}>
+                                {(bookmarkDelete, { data }) => (
+                                    <HeartFilled
+                                        style={{ color: "red", fontSize: "30px", paddingRight: "30px" }}
+                                        onClick=
+                                        {
+                                            (e) => {
+                                                console.log("delete")
+                                                bookmarkDelete({ variables: { documentUuid: this.props.uuid } })
+                                                this.setState({ bookmark: 2 })
+                                            }
+                                        } />
+                                )}
+                            </Mutation>
+                        )
+                    }
                 }}
             </Query>
-            // <HeartOutlined style={{color:"red", fontSize:"30px"}}/>
         )
     }
-
 }
 export default BookmarkComponent

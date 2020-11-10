@@ -53,20 +53,18 @@ class AppHeaderLogin extends React.Component {
   );
 
   render() {
-    console.log(this.props.username)
-    console.log(localStorage.getItem("auth"))
     if (localStorage.getItem("auth") != null && this.props.username != "") {
       return (
 
         <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['2']} className='menu'>
           <Link to='/' className='home'>
-            <HomeOutlined style={{ fontSize: "40px", color: "white", paddingTop: "10px" }} />
+            <HomeOutlined style={{ fontSize: "40px", color: "silver", paddingTop: "10px" }} />
           </Link>
-          <Link to='/' className='page_title' style={{ color: "white", fontSize: '40px', fontWeight: "bold", paddingTop: "10px" }}>
+          <Link to='/' className='page_title' style={{ color: "silver", fontSize: '40px', fontWeight: "bold", paddingTop: "10px" }}>
             Share Document
           </Link>
-          <div>
-            <Dropdown.Button icon={<UserOutlined />} overlay={this.menu}>{this.props.username}</Dropdown.Button>
+          <div style={{paddingTop:"10px"}}>
+            <Dropdown.Button  icon={<UserOutlined />} overlay={this.menu}>{this.props.username}</Dropdown.Button>
           </div>
         </Menu>
       )
@@ -74,11 +72,11 @@ class AppHeaderLogin extends React.Component {
     return (
       <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['2']} className='menu'>
         <Link to='/' className='home'>
-          <HomeOutlined style={{ fontSize: "40px", color: "white", paddingTop: "10px" }} />
+          <HomeOutlined style={{ fontSize: "40px", color: "silver", paddingTop: "10px" }} />
         </Link>
-        <Link to='/' className='page_title' style={{ color: "white", fontSize: '40px', fontWeight: "bold", paddingTop: "10px" }}>
+        <Link to='/' className='page_title' style={{ color: "silver", fontSize: '40px', fontWeight: "bold", paddingTop: "10px" }}>
           Share Document
-              </Link>
+        </Link>
         <div style={{ paddingTop: "10px" }}>
           <Link to='/login' >
             <Button>Login</Button>

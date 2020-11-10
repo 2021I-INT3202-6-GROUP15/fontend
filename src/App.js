@@ -13,36 +13,16 @@ import Profile from './components/layouts/Profile';
 import { gql } from 'apollo-boost'
 import { Query } from 'react-apollo'
 import ADocument from './components/small_components/ADocument';
-import Test from './components/layouts/Test';
 import Bookmark from './components/layouts/Bookmark';
 import RateDocument from './components/layouts/MyRate';
-import BookmarkComponent from './components/small_components/BookmarkComponent';
 import AuthorList from './components/layouts/AuthorList';
 import PublisherList from './components/layouts/PublisherList';
 import SubjectList from './components/layouts/SubjectList';
 import DocumentAuthor from './components/small_components/DocumentAuthor';
 import DocumentPublisher from './components/small_components/DocumentPublisher';
+import DocumentSubject from './components/small_components/DocumentSubject';
+import Test from './components/layouts/Test'
 
-
-const DOCUMENT = gql`
-      query ALL{
-        documentFilter{
-          documentUuid
-        }
-      }`
-const AUTHOR_GET_ALL = gql`
-      query author_get_all{
-        authorGetAll{
-          id
-        }
-      }`
-
-const PUBLISHER_GET_ALL = gql`
-      query publisher_get_all{
-        publisherGetAll{
-          id
-        }
-      }`
 
 class App extends React.Component {
 
@@ -51,7 +31,11 @@ class App extends React.Component {
     this.state = {
       posts: [],
       token: '',
-      username: ''
+      username: '',
+      authorLink:null,
+      publisherLink:null,
+      subjectLink:null,
+      docLink:null
     }
   }
 
@@ -89,6 +73,23 @@ class App extends React.Component {
     })
   }
 
+  getAuthorLink=(passLink)=>{
+    this.setState({authorLink:passLink})
+  }
+  
+  getPublisherLink=(passLink)=>{
+    this.setState({publisherLink:passLink})
+  }
+
+  getSubjectLink=(passLink)=>{
+    this.setState({subjectLink:passLink})
+  }
+  getDocLink=(docLink)=>{
+    this.setState({docLink:docLink})
+  }
+  
+
+
   render() {
     return (
       <ApolloProvider client={this.client}>
@@ -97,72 +98,26 @@ class App extends React.Component {
             <Route exact path='/register'><UserForm /></Route>
             <Route exact path='/DocumentCreate'><DocumentCreate token={this.state.token} username={this.state.username} /></Route>
             <Route exact path='/login'><Login userLogin={this.userLogin} userName={this.userName} /></Route>
-            <Route exact path='/'><HomeLogin username={this.state.username} /></Route>
+
+            <Route exact path='/'><HomeLogin username={this.state.username} documentLink={this.getDocLink}/></Route>
             <Route exact path='/profile'><Profile username={this.state.username} /></Route>
             <Route exact path='/Bookmark'><Bookmark username={this.state.username} /></Route>
             <Route exact path='/Rate'><RateDocument username={this.state.username} /></Route>
-            <Route exact path='/Authors'><AuthorList username={this.state.username} /></Route>
-            <Route exact path='/Publisher'><PublisherList username={this.state.username} /></Route>
-            <Route exact path='/Subject'><SubjectList username={this.state.username} /></Route>
 
-            <Route exact path='/Test'><BookmarkComponent /></Route>
+            <Route exact path='/Authors'><AuthorList username={this.state.username} passLink={this.getAuthorLink}/></Route>
+            <Route exact path='/Publisher'><PublisherList username={this.state.username} passPublisherLink={this.getPublisherLink}/></Route>
+            <Route exact path='/Subject'><SubjectList username={this.state.username} passSubjectLink={this.getSubjectLink} /></Route>
 
-            <Query query={AUTHOR_GET_ALL}>
-              {({ loading, error, data }) => {
-                console.log("app")
-                console.log(data)
-                if (loading) return "Loading"
-                if (error) return `Error! ${error.message}`
-                return (
-                  <Fragment>
-                    {
-                      data.authorGetAll.map((doc, index) => {
-                        return (<Route key={index} exact path={`/${doc.id}`}><DocumentAuthor uuid={doc.id} username={this.state.username}/></Route>)
-                      }
-                      )
-                    }
-                  </Fragment>
-                )
-              }}
-            </Query>
+            <Route exact path={`/${this.state.authorLink}`}><DocumentAuthor uuid={this.state.authorLink} username={this.state.username} pass={this.getDocLink}/></Route>
+            <Route exact path={`/${this.state.publisherLink}`}><DocumentPublisher uuid={this.state.publisherLink} username={this.state.username} pass={this.getDocLink} /></Route>
+            <Route exact path={`/${this.state.subjectLink}`}><DocumentSubject uuid={this.state.subjectLink} username={this.state.username} pass={this.getDocLink}/></Route>
 
-            <Query query={PUBLISHER_GET_ALL}>
-              {({ loading, error, data }) => {
-                console.log("app")
-                console.log(data)
-                if (loading) return "Loading"
-                if (error) return `Error! ${error.message}`
-                return (
-                  <Fragment>
-                    {
-                      data.publisherGetAll.map((doc, index) => {
-                        return (<Route key={index} exact path={`/${doc.id}`}><DocumentPublisher username={this.state.username} uuid={doc.id}/></Route>)
-                      }
-                      )
-                    }
-                  </Fragment>
-                )
-              }}
-            </Query>
 
-            <Query query={DOCUMENT}>
-              {({ loading, error, data }) => {
-                console.log("app")
-                console.log(data)
-                if (loading) return "Loading"
-                if (error) return `Error! ${error.message}`
-                return (
-                  <Fragment>
-                    {
-                      data.documentFilter.map((doc, index) => {
-                        return (<Route key={index} exact path={`/${doc.documentUuid}`}><ADocument uuid={doc.documentUuid} username={this.state.username} /></Route>)
-                      }
-                      )
-                    }
-                  </Fragment>
-                )
-              }}
-            </Query>
+            <Route exact path={`/${this.state.docLink}`}><ADocument uuid={this.state.docLink} username={this.state.username} /></Route>
+
+
+            <Route exact path='/Test'><Test/></Route>
+
           </Router>
         </div>
       </ApolloProvider>

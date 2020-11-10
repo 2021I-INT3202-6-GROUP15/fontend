@@ -1,12 +1,20 @@
 .menu{
     width: 100%;
     display: flex;
-    justify-content: space-between;
     padding: 5px;
 }
-.menu>Link{
+.home{
     padding-top: 10px;
+    padding-left: 50px;
+    flex:2;
+}
+.page_title{
+    padding-top: 10px;
+    flex:10;
+    text-align: center;
 }
 .menu>div{
-    padding-top: 10px;
+    flex:2;
+    align-items: center;
+    
 }
